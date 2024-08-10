@@ -2,6 +2,7 @@ package api
 
 import (
 	"github.com/go-chi/chi/v5/middleware"
+	"go-user-comments-postgres/pkg/db/models"
 	"net/http"
 )
 
@@ -34,4 +35,10 @@ func StartAPI(pgdb *pg.DB) *chi.Mux {
 type CommentRequest struct {
 	Comment string `json:"comment"`
 	UserID  int64  `json:"user_id"`
+}
+
+type CommentResponse struct {
+	Success bool            `json:"success"`
+	Error   string          `json:"error"`
+	Comment *models.Comment `json:"comment"`
 }
