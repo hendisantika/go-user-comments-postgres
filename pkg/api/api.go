@@ -29,3 +29,9 @@ func StartAPI(pgdb *pg.DB) *chi.Mux {
 
 	return r
 }
+
+// -- Requests and Responses
+type CommentRequest struct {
+	Comment string `json:"comment"`
+	UserID  int64  `json:"user_id"`
+}
