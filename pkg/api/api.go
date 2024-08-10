@@ -161,3 +161,26 @@ func getComments(w http.ResponseWriter, r *http.Request) {
 	}
 	w.WriteHeader(http.StatusOK)
 }
+
+func getCommentByID(w http.ResponseWriter, r *http.Request) {
+	//get the id from the URL parameter
+	//alternatively you could use a URL query
+	commentID := chi.URLParam(r, "commentID")
+
+	//get the db from ctx
+	pgdb, ok := r.Context().Value("DB").(*pg.DB)
+	if !ok {
+		handleDBFromContextErr(w)
+		return
+	}
+
+	//get the comment from the DB
+	comment, err := models.GetComment(pgdb, commentID)
+	if err != nil {
+		handleErr(w, err)
+		return
+	}
+
+	//if the retrieval from the db was successful send the data
+	succCommentResponse(comment, w)
+}
