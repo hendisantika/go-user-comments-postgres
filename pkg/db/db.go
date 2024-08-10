@@ -3,6 +3,9 @@ package db
 import (
 	"log"
 	"os"
+
+	"github.com/go-pg/migrations/v8"
+	"github.com/go-pg/pg/v10"
 )
 
 func StartDB() (*pg.DB, error) {

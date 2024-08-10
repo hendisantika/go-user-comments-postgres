@@ -1,5 +1,7 @@
 package models
 
+import "github.com/go-pg/pg/v10"
+
 type Comment struct {
 	ID      int64  `json:"id"`
 	Comment string `json:"comment"`
