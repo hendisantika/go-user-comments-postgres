@@ -81,3 +81,21 @@ func handleDBFromContextErr(w http.ResponseWriter) {
 	//return a bad request and exist the function
 	w.WriteHeader(http.StatusBadRequest)
 }
+
+func successCommentResponse(comment *models.Comment, w http.ResponseWriter) {
+	//return successful response
+	res := &CommentResponse{
+		Success: true,
+		Error:   "",
+		Comment: comment,
+	}
+	//send the encoded response to responsewriter
+	err := json.NewEncoder(w).Encode(res)
+	if err != nil {
+		log.Printf("error encoding comment: %v\n", err)
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+	//send a 200 response
+	w.WriteHeader(http.StatusOK)
+}
