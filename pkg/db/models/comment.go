@@ -22,3 +22,14 @@ func CreateComment(db *pg.DB, req *Comment) (*Comment, error) {
 
 	return comment, err
 }
+
+func GetComment(db *pg.DB, commentID string) (*Comment, error) {
+	comment := &Comment{}
+
+	err := db.Model(comment).
+		Relation("User").
+		Where("comment.id = ?", commentID).
+		Select()
+
+	return comment, err
+}
