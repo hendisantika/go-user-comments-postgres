@@ -99,3 +99,36 @@ func successCommentResponse(comment *models.Comment, w http.ResponseWriter) {
 	//send a 200 response
 	w.WriteHeader(http.StatusOK)
 }
+
+// -- handle routes
+func createComment(w http.ResponseWriter, r *http.Request) {
+	//get the request body and decode it
+	req := &CommentRequest{}
+	err := json.NewDecoder(r.Body).Decode(req)
+	//if there's an error with decoding the information
+	//send a response with an error
+	if err != nil {
+		handleErr(w, err)
+		return
+	}
+	//get the db from context
+	pgdb, ok := r.Context().Value("DB").(*pg.DB)
+	//if we can't get the db let's handle the error
+	//and send an adequate response
+	if !ok {
+		handleDBFromContextErr(w)
+		return
+	}
+	//if we can get the db then
+	comment, err := models.CreateComment(pgdb, &models.Comment{
+		Comment: req.Comment,
+		UserID:  req.UserID,
+	})
+	if err != nil {
+		handleErr(w, err)
+		return
+	}
+	//everything is good
+	//let's return a positive response
+	succCommentResponse(comment, w)
+}
