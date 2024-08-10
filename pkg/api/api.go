@@ -1,8 +1,10 @@
 package api
 
 import (
+	"encoding/json"
 	"github.com/go-chi/chi/v5/middleware"
 	"go-user-comments-postgres/pkg/db/models"
+	"log"
 	"net/http"
 )
 
@@ -47,4 +49,20 @@ type CommentsResponse struct {
 	Success  bool              `json:"success"`
 	Error    string            `json:"error"`
 	Comments []*models.Comment `json:"comments"`
+}
+
+// -- UTILS --
+func handleErr(w http.ResponseWriter, err error) {
+	res := &CommentResponse{
+		Success: false,
+		Error:   err.Error(),
+		Comment: nil,
+	}
+	err = json.NewEncoder(w).Encode(res)
+	//if there's an error with encoding handle it
+	if err != nil {
+		log.Printf("error sending response %v\n", err)
+	}
+	//return a bad request and exist the function
+	w.WriteHeader(http.StatusBadRequest)
 }
