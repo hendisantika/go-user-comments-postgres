@@ -2,8 +2,8 @@ package main
 
 import (
 	"fmt"
-	"go-microservice-example/pkg/api"
-	"go-microservice-example/pkg/db"
+	"go-user-comments-postgres/pkg/api"
+	"go-user-comments-postgres/pkg/db"
 	"log"
 	"net/http"
 	"os"
