@@ -132,3 +132,32 @@ func createComment(w http.ResponseWriter, r *http.Request) {
 	//let's return a positive response
 	succCommentResponse(comment, w)
 }
+
+func getComments(w http.ResponseWriter, r *http.Request) {
+	//get db from ctx
+	pgdb, ok := r.Context().Value("DB").(*pg.DB)
+	if !ok {
+		handleDBFromContextErr(w)
+		return
+	}
+	//call models package to access the database and return the comments
+	comments, err := models.GetComments(pgdb)
+	if err != nil {
+		handleErr(w, err)
+		return
+	}
+	//positive response
+	res := &CommentsResponse{
+		Success:  true,
+		Error:    "",
+		Comments: comments,
+	}
+	//encode the positive response to json and send it back
+	err = json.NewEncoder(w).Encode(res)
+	if err != nil {
+		log.Printf("error encoding comments: %v\n", err)
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+	w.WriteHeader(http.StatusOK)
+}
