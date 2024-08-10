@@ -131,7 +131,7 @@ func createComment(w http.ResponseWriter, r *http.Request) {
 	}
 	//everything is good
 	//let's return a positive response
-	succCommentResponse(comment, w)
+	successCommentResponse(comment, w)
 }
 
 func getComments(w http.ResponseWriter, r *http.Request) {
@@ -183,7 +183,7 @@ func getCommentByID(w http.ResponseWriter, r *http.Request) {
 	}
 
 	//if the retrieval from the db was successful send the data
-	succCommentResponse(comment, w)
+	successCommentResponse(comment, w)
 }
 
 func updateCommentByID(w http.ResponseWriter, r *http.Request) {
@@ -218,5 +218,39 @@ func updateCommentByID(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		handleErr(w, err)
 	}
-	succCommentResponse(comment, w)
+	successCommentResponse(comment, w)
+}
+
+func deleteCommentByID(w http.ResponseWriter, r *http.Request) {
+	//parse in the req body
+	req := &CommentRequest{}
+	err := json.NewDecoder(r.Body).Decode(req)
+	if err != nil {
+		handleErr(w, err)
+		return
+	}
+
+	//get the db from ctx
+	pgdb, ok := r.Context().Value("DB").(*pg.DB)
+	if !ok {
+		handleDBFromContextErr(w)
+		return
+	}
+
+	//get the commentID
+	commentID := chi.URLParam(r, "commentID")
+	intCommentID, err := strconv.ParseInt(commentID, 10, 64)
+	if err != nil {
+		handleErr(w, err)
+		return
+	}
+
+	//delete comment
+	err = models.DeleteComment(pgdb, intCommentID)
+	if err != nil {
+		handleErr(w, err)
+	}
+
+	//send successful response
+	successCommentResponse(nil, w)
 }
