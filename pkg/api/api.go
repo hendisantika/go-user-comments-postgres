@@ -6,6 +6,7 @@ import (
 	"go-user-comments-postgres/pkg/db/models"
 	"log"
 	"net/http"
+	"strconv"
 )
 
 // start api with the pgdb and return a chi router
@@ -182,5 +183,40 @@ func getCommentByID(w http.ResponseWriter, r *http.Request) {
 	}
 
 	//if the retrieval from the db was successful send the data
+	succCommentResponse(comment, w)
+}
+
+func updateCommentByID(w http.ResponseWriter, r *http.Request) {
+	//get the data from the request
+	req := &CommentRequest{}
+	//decode the data
+	err := json.NewDecoder(r.Body).Decode(req)
+	if err != nil {
+		handleErr(w, err)
+		return
+	}
+	pgdb, ok := r.Context().Value("DB").(*pg.DB)
+	if !ok {
+		handleDBFromContextErr(w)
+		return
+	}
+	//get the commentID to know what comment to modify
+	commentID := chi.URLParam(r, "commentID")
+	//we get a string but we need to send an int so we convert it
+	intCommentID, err := strconv.ParseInt(commentID, 10, 64)
+	if err != nil {
+		handleErr(w, err)
+		return
+	}
+
+	//update the comment
+	comment, err := models.UpdateComment(pgdb, &models.Comment{
+		ID:      intCommentID,
+		Comment: req.Comment,
+		UserID:  req.UserID,
+	})
+	if err != nil {
+		handleErr(w, err)
+	}
 	succCommentResponse(comment, w)
 }
